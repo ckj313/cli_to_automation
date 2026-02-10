@@ -89,7 +89,10 @@ def extract_automation_lines(api_response: dict) -> list[str]:
 
 
 def generate_script(automation_lines: list[str], products: list[str], cli_commands: list[str]) -> str:
-    """Generate a complete Python automation test script.
+    """Generate automation script output from the API response.
+
+    Directly outputs the automation lines returned by the API,
+    without wrapping in a function definition.
 
     Args:
         automation_lines: Extracted automation code lines from the API.
@@ -97,39 +100,12 @@ def generate_script(automation_lines: list[str], products: list[str], cli_comman
         cli_commands: Original CLI commands for reference.
 
     Returns:
-        Complete Python script as a string.
+        Automation code lines as a string.
     """
-    product_str = ", ".join(products)
-    cli_block = "\n".join(f"#   {cmd}" for cmd in cli_commands)
-
-    script = f'''#!/usr/bin/env python3
-"""
-Auto-generated automation test script.
-
-Product: {product_str}
-Source CLI commands:
-{cli_block}
-"""
-
-
-def run(dta):
-    """Execute automation commands on the device.
-
-    Args:
-        dta: Device test adapter instance.
-    """
-'''
-
     if not automation_lines:
-        script += "    pass  # No automation lines generated\n"
-    else:
-        for line in automation_lines:
-            if line.startswith("#"):
-                script += f"    {line}\n"
-            else:
-                script += f"    {line}\n"
+        return "# No automation lines generated\n"
 
-    return script
+    return "\n".join(automation_lines) + "\n"
 
 
 def read_cli_from_file(filepath: str) -> list[str]:
