@@ -82,12 +82,42 @@ def extract_automation_lines(api_response: dict) -> list[str]:
 
         output = entry.get("output_lines", "")
         if output:
-            for line in output.strip().splitlines():
-                stripped = line.strip()
-                if stripped:
-                    lines.append(stripped)
+            # Merge continuation lines: only lines starting with "self"
+            # are real new lines. Lines starting with whitespace/tab after
+            # a newline are continuations of the previous line.
+            merged_lines = _merge_continuation_lines(output)
+            lines.extend(merged_lines)
 
     return lines
+
+
+def _merge_continuation_lines(output: str) -> list[str]:
+    """Merge continuation lines in API output.
+
+    A new logical line starts only when the line begins with 'self'.
+    Lines starting with whitespace or tab are continuations of the
+    previous line and get appended to it.
+
+    Args:
+        output: Raw output_lines string from the API.
+
+    Returns:
+        List of merged code lines.
+    """
+    merged = []
+    for raw_line in output.strip().splitlines():
+        if not raw_line.strip():
+            continue
+        if raw_line.lstrip().startswith("self") and merged:
+            # This is a new logical line
+            merged.append(raw_line.strip())
+        elif not merged:
+            # First line
+            merged.append(raw_line.strip())
+        else:
+            # Continuation line: append to the previous line
+            merged[-1] += " " + raw_line.strip()
+    return merged
 
 
 def generate_script(automation_lines: list[str], products: list[str], cli_commands: list[str]) -> str:
