@@ -37,9 +37,11 @@ def call_ddt_api(cli_commands: list[str], products: list[str], timeout: int = DE
         requests.RequestException: If the API call fails.
         ValueError: If the API returns an error status.
     """
+    # Join all CLI commands into a single string separated by \n
+    cli_block = "\n".join(cli_commands)
     payload = {
         "applicable_products": products,
-        "block_clis": cli_commands,
+        "block_clis": [cli_block],
     }
 
     response = requests.post(
