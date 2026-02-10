@@ -46,7 +46,10 @@ def call_ddt_api(cli_commands: list[str], products: list[str], timeout: int = DE
         DDT_API_URL,
         json=payload,
         timeout=timeout,
-        headers={"Content-Type": "application/json"},
+        headers={
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
     )
     response.raise_for_status()
 
