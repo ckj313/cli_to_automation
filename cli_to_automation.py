@@ -41,7 +41,7 @@ def call_ddt_api(cli_commands: list[str], products: list[str], timeout: int = DE
     cli_block = "\n".join(cli_commands)
     payload = {
         "applicable_products": products,
-        "block_clis": [cli_block],
+        "block_clis": {"fake_id_1": cli_block},
     }
 
     response = requests.post(
